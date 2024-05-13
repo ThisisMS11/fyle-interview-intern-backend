@@ -60,3 +60,26 @@ def test_regrade_assignment(client, h_principal):
 
     assert response.json['data']['state'] == AssignmentStateEnum.GRADED.value
     assert response.json['data']['grade'] == GradeEnum.B
+
+
+def test_list_teachers(client, h_principal):
+    """
+    Test the list_teachers method to ensure it returns information about all teachers
+    """
+    response = client.get(
+        '/principal/teachers',
+        headers=h_principal
+    )
+
+    assert response.status_code == 200
+
+    data = response.json['data']
+    assert len(data) > 0  # Ensure that data is not empty
+
+    # Check if each teacher entry contains the required fields
+    for teacher_info in data:
+        assert 'id' in teacher_info
+        assert 'user_id' in teacher_info
+        assert 'created_at' in teacher_info
+        assert 'updated_at' in teacher_info
+

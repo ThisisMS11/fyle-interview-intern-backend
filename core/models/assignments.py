@@ -5,7 +5,6 @@ from core.libs import helpers, assertions
 from core.models.teachers import Teacher
 from core.models.students import Student
 from sqlalchemy.types import Enum as BaseEnum
-from flask import abort
 
 
 class GradeEnum(str, enum.Enum):
@@ -84,11 +83,13 @@ class Assignment(db.Model):
         assertions.assert_found(assignment, 'No assignment with this id was found')
         assertions.assert_valid(grade is not None, 'assignment with empty grade cannot be graded')
 
-
         assertions.assert_valid(assignment.state is not AssignmentStateEnum.DRAFT, 'Assignment in draft form cannot be graded')
 
         if auth_principal.teacher_id is not None:
+
             assertions.assert_valid(auth_principal.teacher_id == assignment.teacher_id,'Assignment was not submitted to teacher with id {}'.format(auth_principal.teacher_id))
+
+            assertions.assert_valid(assignment.grade is None ,'Assignment cannot be re-graded by teacher')
 
 
         assignment.grade = grade
@@ -98,10 +99,17 @@ class Assignment(db.Model):
 
     @classmethod
     def get_assignments_by_student(cls, student_id):
+        student = Student.get_by_id(student_id)
+        
+        assertions.assert_found(student,'student not found');
         return cls.filter(cls.student_id == student_id).all()
 
     @classmethod
     def get_assignments_by_teacher(cls,teacher_id):
+        teacher = Teacher.get_by_id(teacher_id)
+        
+        assertions.assert_found(teacher,'teacher not found');
+
         return cls.filter(
             (cls.state == AssignmentStateEnum.SUBMITTED),
             (cls.teacher_id== teacher_id)
