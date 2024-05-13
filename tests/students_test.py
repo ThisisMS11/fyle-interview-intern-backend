@@ -79,7 +79,7 @@ def test_assignment_resubmit_error(client, h_student_1):
         '/student/assignments/submit',
         headers=h_student_1,
         json={
-            'id': 2,
+            'id': 1,
             'teacher_id': 2
         })
     error_response = response.json
