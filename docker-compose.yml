@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  fyle-flask-docker:
+    image: fyle-flask-docker
+    ports:
+      - "5000:7755"
+    restart: always
